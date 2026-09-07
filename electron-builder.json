@@ -16,15 +16,11 @@
     "output": "release"
   },
   "mac": {
-    "target": ["pkg", "dmg", "zip"],
+    "target": ["dmg", "zip"],
     "category": "public.app-category.photography",
     "artifactName": "${productName}-${version}.${ext}",
-    "hardenedRuntime": false,
-    "gatekeeperAssess": false
-  },
-  "pkg": {
-    "isRelocatable": false,
-    "scripts": "./pkg-scripts"
+    "hardenedRuntime": true,
+    "gatekeeperAssess": true
   },
   "dmg": {
     "window": {
