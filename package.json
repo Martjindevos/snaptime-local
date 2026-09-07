@@ -1,6 +1,6 @@
 {
   "name": "snaptime-local",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "main": "dist/main/index.js",
   "scripts": {
     "dev": "concurrently \"vite\" \"npm run build:main && node electron.js dist/main/index.js\"",

@@ -27,6 +27,10 @@ export default function LicenseGate({ daysLeft, licenseValid, licenseKey, licens
       setError('Please enter a license key')
       return
     }
+    if (!navigator.onLine) {
+      setError('No internet connection. License verification requires internet.')
+      return
+    }
     setActivating(true)
     setError('')
     try {
@@ -37,7 +41,7 @@ export default function LicenseGate({ daysLeft, licenseValid, licenseKey, licens
         setError(result.error || 'Activation failed')
       }
     } catch (err) {
-      setError(String(err))
+      setError('Connection error. Please check your internet and try again.')
     } finally {
       setActivating(false)
     }
