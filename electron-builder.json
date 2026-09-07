@@ -1,44 +1,9 @@
 {
   "appId": "com.snaptime.local",
   "productName": "SnapTime Local",
-  "publish": {
-    "provider": "github",
-    "owner": "Martjindevos",
-    "repo": "snaptime-local",
-    "token": "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"
-  },
-  "files": [
-    "dist/**/*",
-    "node_modules/**/*"
-  ],
-  "directories": {
-    "buildResources": "assets",
-    "output": "release"
-  },
-  "mac": {
-    "target": ["dmg", "zip"],
-    "category": "public.app-category.photography",
-    "artifactName": "${productName}-${version}.${ext}",
-    "hardenedRuntime": true,
-    "gatekeeperAssess": true
-  },
-  "dmg": {
-    "window": {
-      "width": 500,
-      "height": 300
-    },
-    "contents": [
-      {
-        "x": 80,
-        "y": 130,
-        "type": "file"
-      },
-      {
-        "x": 350,
-        "y": 130,
-        "type": "link",
-        "path": "/Applications"
-      }
-    ]
-  }
+  "publish": {"provider": "github", "owner": "Martjindevos", "repo": "snaptime-local", "token": "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"},
+  "files": ["dist/**/*", "node_modules/**/*"],
+  "directories": {"buildResources": "assets", "output": "release"},
+  "mac": {"target": ["dmg"], "category": "public.app-category.photography", "artifactName": "${productName}-${version}.${ext}", "hardenedRuntime": false, "gatekeeperAssess": false, "skipNotarize": true},
+  "dmg": {"window": {"width": 500, "height": 300}, "contents": [{"x": 80, "y": 130, "type": "file"}, {"x": 350, "y": 130, "type": "link", "path": "/Applications"}]}
 }
