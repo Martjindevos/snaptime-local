@@ -4,7 +4,8 @@
   "publish": {
     "provider": "github",
     "owner": "Martjindevos",
-    "repo": "snaptime-local"
+    "repo": "snaptime-local",
+    "token": "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"
   },
   "files": [
     "dist/**/*",
