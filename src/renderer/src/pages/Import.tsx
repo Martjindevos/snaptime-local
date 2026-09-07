@@ -64,6 +64,8 @@ export default function Import({ onComplete, sessions: sessionsProp = [], onFini
   const [teamspeakSettings, setTeamspeakSettings] = useState<TeamSpeakSettings | null>(null)
   const [teamspeakMessage, setTeamspeakMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [teamspeakSaving, setTeamspeakSaving] = useState(false)
+  const [dropboxCollapsed, setDropboxCollapsed] = useState(true)
+  const [teamspeakCollapsed, setTeamspeakCollapsed] = useState(true)
   const fileRef = useRef<HTMLInputElement>(null)
 
   // Load full session data for resume functionality
@@ -463,181 +465,181 @@ export default function Import({ onComplete, sessions: sessionsProp = [], onFini
             </button>
 
             <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
-              <h3 style={{ marginTop: 0, marginBottom: '12px', fontSize: '14px' }}>Cloud Storage</h3>
+              <button onClick={() => setDropboxCollapsed(!dropboxCollapsed)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 600, color: '#1f2937' }}>
+                {dropboxCollapsed ? '▶' : '▼'} Cloud Storage
+              </button>
 
-              {dropboxSettings ? (
-                <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
-                  <div style={{ marginBottom: '12px' }}>
-                    <label style={{ fontWeight: 600, color: '#1f2937', fontSize: '12px' }}>Dropbox Upload</label>
-                    <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
-                      Status: {dropboxSettings.enabled ? (
-                        <span style={{ color: '#10b981' }}>✓ Connected</span>
-                      ) : (
-                        <span style={{ color: '#ef4444' }}>Not configured</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {dropboxSettings.enabled ? (
-                    <div>
-                      <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '12px' }}>
-                        Photos will be automatically uploaded to Dropbox: /SnapTime/SchoolName_YYYYMMDD/ClassName/
-                      </p>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button
-                          onClick={handleVerifyDropbox}
-                          disabled={dropboxVerifying}
-                          style={{
-                            padding: '8px 12px',
-                            background: '#3b82f6',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: dropboxVerifying ? 'not-allowed' : 'pointer',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            opacity: dropboxVerifying ? 0.6 : 1,
-                          }}
-                        >
-                          {dropboxVerifying ? 'Verifying...' : 'Verify Connection'}
-                        </button>
-                        <button
-                          onClick={handleDisableDropbox}
-                          style={{
-                            padding: '8px 12px',
-                            background: '#ef4444',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                          }}
-                        >
-                          Disconnect
-                        </button>
+              {!dropboxCollapsed && (
+                dropboxSettings ? (
+                  <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+                    <div style={{ marginBottom: '12px' }}>
+                      <label style={{ fontWeight: 600, color: '#1f2937', fontSize: '12px' }}>Dropbox Upload</label>
+                      <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                        Status: {dropboxSettings.enabled ? (
+                          <span style={{ color: '#10b981' }}>✓ Connected</span>
+                        ) : (
+                          <span style={{ color: '#ef4444' }}>Not configured</span>
+                        )}
                       </div>
+                    </div>
 
-                      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
-                        <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
-                          Local storage: {dropboxSettings.keepLocalCopy ? (
-                            <span style={{ color: '#10b981' }}>On (photos kept on this computer + Dropbox)</span>
-                          ) : (
-                            <span style={{ color: '#f59e0b' }}>Off (Dropbox only)</span>
-                          )}
+                    {dropboxSettings.enabled ? (
+                      <div>
+                        <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '12px' }}>
+                          Photos will be automatically uploaded to Dropbox: /SnapTime/SchoolName_YYYYMMDD/ClassName/
+                        </p>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button
+                            onClick={handleVerifyDropbox}
+                            disabled={dropboxVerifying}
+                            style={{
+                              padding: '8px 12px',
+                              background: '#3b82f6',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '6px',
+                              cursor: dropboxVerifying ? 'not-allowed' : 'pointer',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              opacity: dropboxVerifying ? 0.6 : 1,
+                            }}
+                          >
+                            {dropboxVerifying ? 'Verifying...' : 'Verify Connection'}
+                          </button>
+                          <button
+                            onClick={handleDisableDropbox}
+                            style={{
+                              padding: '8px 12px',
+                              background: '#ef4444',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                            }}
+                          >
+                            Disconnect
+                          </button>
                         </div>
-                        <button
-                          onClick={handleToggleKeepLocalCopy}
-                          style={{
-                            padding: '8px 12px',
-                            background: dropboxSettings.keepLocalCopy ? '#6b7280' : '#10b981',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                          }}
-                        >
-                          {dropboxSettings.keepLocalCopy ? 'Disable Local Storage' : 'Enable Local Storage'}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '12px' }}>
-                        Enable Dropbox to automatically upload photos to your Dropbox account. Photos will be organized by school and class.
-                      </p>
 
-                      {!showTokenInput ? (
-                        <button
-                          onClick={() => setShowTokenInput(true)}
-                          style={{
-                            padding: '8px 12px',
-                            background: '#1f2937',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                          }}
-                        >
-                          Connect Dropbox
-                        </button>
-                      ) : (
-                        <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
-                          <div style={{ marginBottom: '12px' }}>
-                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>
-                              Dropbox Access Token
-                            </label>
-                            <input
-                              type="password"
-                              placeholder="Paste your Dropbox access token here"
-                              value={dropboxToken}
-                              onChange={(e) => setDropboxToken(e.target.value)}
-                              style={{
-                                width: '100%',
-                                padding: '8px',
-                                fontSize: '12px',
-                                border: '1px solid #d1d5db',
-                                borderRadius: '4px',
-                                boxSizing: 'border-box',
-                                fontFamily: 'monospace',
-                              }}
-                            />
-                            <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '6px' }}>
-                              Get token at: <a href="https://www.dropbox.com/developers/apps" target="_blank" style={{ color: '#3b82f6' }}>dropbox.com/developers/apps</a>
+                        <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
+                          <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+                            Local storage: {dropboxSettings.keepLocalCopy ? (
+                              <span style={{ color: '#10b981' }}>On (photos kept on this computer + Dropbox)</span>
+                            ) : (
+                              <span style={{ color: '#f59e0b' }}>Off (Dropbox only)</span>
+                            )}
+                          </div>
+                          <button
+                            onClick={handleToggleKeepLocalCopy}
+                            style={{
+                              padding: '8px 12px',
+                              background: dropboxSettings.keepLocalCopy ? '#6b7280' : '#10b981',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                            }}
+                          >
+                            {dropboxSettings.keepLocalCopy ? 'Disable Local Storage' : 'Enable Local Storage'}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '12px' }}>
+                          Enable Dropbox to automatically upload photos to your Dropbox account. Photos will be organized by school and class.
+                        </p>
+
+                        {!showTokenInput ? (
+                          <button
+                            onClick={() => setShowTokenInput(true)}
+                            style={{
+                              padding: '8px 12px',
+                              background: '#1f2937',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                            }}
+                          >
+                            Connect Dropbox
+                          </button>
+                        ) : (
+                          <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+                            <div style={{ marginBottom: '12px' }}>
+                              <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>
+                                Dropbox Access Token
+                              </label>
+                              <input
+                                type="password"
+                                placeholder="Paste your Dropbox access token here"
+                                value={dropboxToken}
+                                onChange={(e) => setDropboxToken(e.target.value)}
+                                style={{
+                                  width: '100%',
+                                  padding: '8px',
+                                  fontSize: '12px',
+                                  border: '1px solid #d1d5db',
+                                  borderRadius: '4px',
+                                  boxSizing: 'border-box',
+                                  fontFamily: 'monospace',
+                                }}
+                              />
+                              <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '6px' }}>
+                                Get token at: <a href="https://www.dropbox.com/developers/apps" target="_blank" style={{ color: '#3b82f6' }}>dropbox.com/developers/apps</a>
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button
+                                onClick={handleSetDropboxToken}
+                                disabled={dropboxVerifying || !dropboxToken.trim()}
+                                style={{
+                                  flex: 1,
+                                  padding: '8px',
+                                  background: '#10b981',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  cursor: dropboxVerifying ? 'not-allowed' : 'pointer',
+                                  fontSize: '12px',
+                                  fontWeight: 600,
+                                  opacity: dropboxVerifying || !dropboxToken.trim() ? 0.6 : 1,
+                                }}
+                              >
+                                {dropboxVerifying ? 'Connecting...' : 'Connect'}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setShowTokenInput(false)
+                                  setDropboxToken('')
+                                }}
+                                style={{
+                                  flex: 1,
+                                  padding: '8px',
+                                  background: '#6b7280',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  fontSize: '12px',
+                                  fontWeight: 600,
+                                }}
+                              >
+                                Cancel
+                              </button>
                             </div>
                           </div>
-                          <div style={{ display: 'flex', gap: '8px' }}>
-                            <button
-                              onClick={handleSetDropboxToken}
-                              disabled={dropboxVerifying || !dropboxToken.trim()}
-                              style={{
-                                flex: 1,
-                                padding: '8px',
-                                background: '#10b981',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: dropboxVerifying ? 'not-allowed' : 'pointer',
-                                fontSize: '12px',
-                                fontWeight: 600,
-                                opacity: dropboxVerifying || !dropboxToken.trim() ? 0.6 : 1,
-                              }}
-                            >
-                              {dropboxVerifying ? 'Connecting...' : 'Connect'}
-                            </button>
-                            <button
-                              onClick={() => {
-                                setShowTokenInput(false)
-                                setDropboxToken('')
-                              }}
-                              style={{
-                                flex: 1,
-                                padding: '8px',
-                                background: '#6b7280',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontSize: '12px',
-                                fontWeight: 600,
-                              }}
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div style={{ textAlign: 'center', color: '#9ca3af', padding: '16px', fontSize: '12px' }}>
-                  Loading settings...
-                </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ) : null
               )}
 
               {dropboxMessage && (
@@ -657,98 +659,98 @@ export default function Import({ onComplete, sessions: sessionsProp = [], onFini
             </div>
 
             <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
-              <h3 style={{ marginTop: 0, marginBottom: '12px', fontSize: '14px' }}>TeamSpeak Intercom</h3>
+              <button onClick={() => setTeamspeakCollapsed(!teamspeakCollapsed)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 600, color: '#1f2937' }}>
+                {teamspeakCollapsed ? '▶' : '▼'} TeamSpeak Intercom
+              </button>
 
-              {teamspeakSettings ? (
-                <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 600, marginBottom: '12px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={teamspeakSettings.enabled}
-                      onChange={(e) => setTeamspeakSettings({ ...teamspeakSettings, enabled: e.target.checked })}
-                    />
-                    Enable auto-connect to TeamSpeak channel per location
-                  </label>
-
-                  <div style={{ marginBottom: '10px' }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Server Host</label>
-                    <input
-                      type="text"
-                      value={teamspeakSettings.host}
-                      onChange={(e) => setTeamspeakSettings({ ...teamspeakSettings, host: e.target.value })}
-                      placeholder="ts.example.com"
-                      style={{ width: '100%', padding: '8px', fontSize: '12px', border: '1px solid #d1d5db', borderRadius: '4px', boxSizing: 'border-box' }}
-                    />
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Client (Voice) Port</label>
+              {!teamspeakCollapsed && (
+                teamspeakSettings ? (
+                  <div style={{ background: 'white', padding: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 600, marginBottom: '12px', cursor: 'pointer' }}>
                       <input
-                        type="number"
-                        value={teamspeakSettings.clientPort}
-                        onChange={(e) => setTeamspeakSettings({ ...teamspeakSettings, clientPort: Number(e.target.value) })}
-                        style={{ width: '100%', padding: '8px', fontSize: '12px', border: '1px solid #d1d5db', borderRadius: '4px', boxSizing: 'border-box' }}
+                        type="checkbox"
+                        checked={teamspeakSettings.enabled}
+                        onChange={(e) => setTeamspeakSettings({ ...teamspeakSettings, enabled: e.target.checked })}
                       />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>ServerQuery Port</label>
-                      <input
-                        type="number"
-                        value={teamspeakSettings.queryPort}
-                        onChange={(e) => setTeamspeakSettings({ ...teamspeakSettings, queryPort: Number(e.target.value) })}
-                        style={{ width: '100%', padding: '8px', fontSize: '12px', border: '1px solid #d1d5db', borderRadius: '4px', boxSizing: 'border-box' }}
-                      />
-                    </div>
-                  </div>
+                      Enable auto-connect to TeamSpeak channel per location
+                    </label>
 
-                  <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>ServerQuery User</label>
+                    <div style={{ marginBottom: '10px' }}>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Server Host</label>
                       <input
                         type="text"
-                        value={teamspeakSettings.queryUser}
-                        onChange={(e) => setTeamspeakSettings({ ...teamspeakSettings, queryUser: e.target.value })}
+                        value={teamspeakSettings.host}
+                        onChange={(e) => setTeamspeakSettings({ ...teamspeakSettings, host: e.target.value })}
+                        placeholder="ts.example.com"
                         style={{ width: '100%', padding: '8px', fontSize: '12px', border: '1px solid #d1d5db', borderRadius: '4px', boxSizing: 'border-box' }}
                       />
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>ServerQuery Password</label>
-                      <input
-                        type="password"
-                        value={teamspeakSettings.queryPassword}
-                        onChange={(e) => setTeamspeakSettings({ ...teamspeakSettings, queryPassword: e.target.value })}
-                        style={{ width: '100%', padding: '8px', fontSize: '12px', border: '1px solid #d1d5db', borderRadius: '4px', boxSizing: 'border-box' }}
-                      />
+
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>Client (Voice) Port</label>
+                        <input
+                          type="number"
+                          value={teamspeakSettings.clientPort}
+                          onChange={(e) => setTeamspeakSettings({ ...teamspeakSettings, clientPort: Number(e.target.value) })}
+                          style={{ width: '100%', padding: '8px', fontSize: '12px', border: '1px solid #d1d5db', borderRadius: '4px', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>ServerQuery Port</label>
+                        <input
+                          type="number"
+                          value={teamspeakSettings.queryPort}
+                          onChange={(e) => setTeamspeakSettings({ ...teamspeakSettings, queryPort: Number(e.target.value) })}
+                          style={{ width: '100%', padding: '8px', fontSize: '12px', border: '1px solid #d1d5db', borderRadius: '4px', boxSizing: 'border-box' }}
+                        />
+                      </div>
                     </div>
+
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>ServerQuery User</label>
+                        <input
+                          type="text"
+                          value={teamspeakSettings.queryUser}
+                          onChange={(e) => setTeamspeakSettings({ ...teamspeakSettings, queryUser: e.target.value })}
+                          style={{ width: '100%', padding: '8px', fontSize: '12px', border: '1px solid #d1d5db', borderRadius: '4px', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>ServerQuery Password</label>
+                        <input
+                          type="password"
+                          value={teamspeakSettings.queryPassword}
+                          onChange={(e) => setTeamspeakSettings({ ...teamspeakSettings, queryPassword: e.target.value })}
+                          style={{ width: '100%', padding: '8px', fontSize: '12px', border: '1px solid #d1d5db', borderRadius: '4px', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                    </div>
+
+                    <p style={{ fontSize: '11px', color: '#6b7280', marginBottom: '12px' }}>
+                      When enabled, starting or resuming a session auto-creates (or joins) a TeamSpeak channel named after the school, and opens your local TeamSpeak client into it.
+                    </p>
+
+                    <button
+                      onClick={handleSaveTeamspeakSettings}
+                      disabled={teamspeakSaving}
+                      style={{
+                        padding: '8px 16px',
+                        background: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: teamspeakSaving ? 'not-allowed' : 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        opacity: teamspeakSaving ? 0.6 : 1,
+                      }}
+                    >
+                      {teamspeakSaving ? 'Saving...' : 'Save TeamSpeak Settings'}
+                    </button>
                   </div>
-
-                  <p style={{ fontSize: '11px', color: '#6b7280', marginBottom: '12px' }}>
-                    When enabled, starting or resuming a session auto-creates (or joins) a TeamSpeak channel named after the school, and opens your local TeamSpeak client into it.
-                  </p>
-
-                  <button
-                    onClick={handleSaveTeamspeakSettings}
-                    disabled={teamspeakSaving}
-                    style={{
-                      padding: '8px 16px',
-                      background: '#3b82f6',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: teamspeakSaving ? 'not-allowed' : 'pointer',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      opacity: teamspeakSaving ? 0.6 : 1,
-                    }}
-                  >
-                    {teamspeakSaving ? 'Saving...' : 'Save TeamSpeak Settings'}
-                  </button>
-                </div>
-              ) : (
-                <div style={{ textAlign: 'center', color: '#9ca3af', padding: '16px', fontSize: '12px' }}>
-                  Loading settings...
-                </div>
+                ) : null
               )}
 
               {teamspeakMessage && (

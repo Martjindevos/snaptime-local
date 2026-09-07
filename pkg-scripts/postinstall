@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Post-install script for SnapTime Local
+# Removes quarantine attribute and launches the app
+
+APP_PATH="/Applications/SnapTime Local.app"
+
+echo "Finalizing installation..."
+
+# Remove quarantine attribute
+if [ -d "$APP_PATH" ]; then
+  xattr -d com.apple.quarantine "$APP_PATH" 2>/dev/null || true
+  echo "✓ Installation complete!"
+else
+  echo "⚠ App not found at $APP_PATH"
+fi
+
+exit 0

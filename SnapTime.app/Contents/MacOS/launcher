@@ -1,0 +1,20 @@
+#!/bin/bash
+APP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../../.." && pwd )"
+cd "$APP_DIR"
+
+# Start npm dev detached and disowned so it survives terminal close
+(nohup npm run dev > /dev/null 2>&1 &) &
+LAUNCHER_PID=$!
+disown $LAUNCHER_PID
+
+# Give process time to start
+sleep 1
+
+# Hide terminal window
+osascript <<EOF
+tell application "Terminal"
+  set visible of every window to false
+end tell
+EOF
+
+exit 0
