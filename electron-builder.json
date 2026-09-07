@@ -1,0 +1,43 @@
+{
+  "appId": "com.snaptime.local",
+  "productName": "SnapTime Local",
+  "publish": {
+    "provider": "github",
+    "owner": "Martjindevos",
+    "repo": "snaptime-local"
+  },
+  "files": [
+    "dist/**/*",
+    "node_modules/**/*"
+  ],
+  "directories": {
+    "buildResources": "assets",
+    "output": "release"
+  },
+  "mac": {
+    "target": ["dmg", "zip"],
+    "category": "public.app-category.photography",
+    "artifactName": "${productName}-${version}.${ext}",
+    "hardenedRuntime": false,
+    "gatekeeperAssess": false
+  },
+  "dmg": {
+    "window": {
+      "width": 500,
+      "height": 300
+    },
+    "contents": [
+      {
+        "x": 80,
+        "y": 130,
+        "type": "file"
+      },
+      {
+        "x": 350,
+        "y": 130,
+        "type": "link",
+        "path": "/Applications"
+      }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "snaptime-local",
+  "version": "1.0.0",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "dev": "concurrently \"vite\" \"npm run build:main && node electron.js dist/main/index.js\"",
+    "build:ui": "vite build",
+    "build:main": "tsc src/main/index.ts src/main/handlers/*.ts src/preload/index.ts --outDir dist --module commonjs --target es2020 --lib es2020 --moduleResolution node --esModuleInterop --skipLibCheck",
+    "build": "npm run build:main && npm run build:ui",
+    "dist": "npm run build && electron-builder"
+  },
+  "dependencies": {
+    "dropbox": "^10.34.0",
+    "electron-updater": "^6.8.9",
+    "sudo-prompt": "^9.2.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@vitejs/plugin-react": "^4",
+    "concurrently": "^8.2.2",
+    "electron": "^29.4.6",
+    "electron-builder": "^26.15.3",
+    "react": "^18",
+    "react-dom": "^18",
+    "typescript": "^5",
+    "vite": "^5"
+  },
+  "allowScripts": {
+    "electron@29.4.6": true,
+    "esbuild@0.21.5": true,
+    "fsevents@2.3.3": true
+  }
+}
