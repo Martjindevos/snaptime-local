@@ -50,7 +50,6 @@ function getLicenseStatus(state: LicenseState) {
 async function validateSnapTimeLicense(licenseKey: string): Promise<{ valid: boolean; error?: string; expiresAt?: number }> {
   try {
     const deviceId = getDeviceMacAddress()
-    console.log('[License Validation] Key:', licenseKey, 'DeviceId:', deviceId)
     const response = await fetch('https://www.snaptime.nl/api/license/validate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -60,17 +59,13 @@ async function validateSnapTimeLicense(licenseKey: string): Promise<{ valid: boo
       }),
     })
     const data: any = await response.json()
-    console.log('[License API Response]', JSON.stringify(data, null, 2))
     if (data.valid) {
       let expiresAt: number | undefined
       if (data.expiresAt) {
         expiresAt = typeof data.expiresAt === 'string' ? new Date(data.expiresAt).getTime() : data.expiresAt
       } else if (data.expires_at) {
         expiresAt = typeof data.expires_at === 'string' ? new Date(data.expires_at).getTime() : data.expires_at
-      } else if (data.expiry) {
-        expiresAt = typeof data.expiry === 'string' ? new Date(data.expiry).getTime() : data.expiry
       }
-      console.log('[License expiresAt]', expiresAt, 'from', data.expiresAt || data.expires_at || data.expiry)
       return { valid: true, expiresAt }
     }
     return { valid: false, error: data.error || 'Invalid license key' }
