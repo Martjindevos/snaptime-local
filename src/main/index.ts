@@ -19,6 +19,10 @@ function buildAppMenu() {
           label: 'Enter License Key...',
           click: () => mainWindow?.webContents.send('open-license'),
         },
+        {
+          label: 'Check Duplicates...',
+          click: () => mainWindow?.webContents.send('open-duplicates-checker'),
+        },
         { type: 'separator' },
         { label: 'Quit SnapTime Local', role: 'quit' },
       ],
@@ -616,6 +620,59 @@ ipcMain.handle('read-clipboard', async () => {
     return { success: true, text }
   } catch (error) {
     console.error('[IPC read-clipboard] Error:', error)
+    return { success: false, error: String(error) }
+  }
+})
+
+ipcMain.handle('check-duplicates', async (event, schoolName: string, students: any) => {
+  try {
+    const duplicates: { [key: string]: Array<{ className: string; photoCount: number; student: any }> } = {}
+
+    // Find duplicate student IDs across classes
+    for (const className of Object.keys(students)) {
+      for (const student of students[className] || []) {
+        if (!duplicates[student.id]) {
+          duplicates[student.id] = []
+        }
+        duplicates[student.id].push({
+          className,
+          photoCount: 0,
+          student
+        })
+      }
+    }
+
+    // Filter to only show actual duplicates
+    const actualDuplicates = Object.entries(duplicates)
+      .filter(([id, entries]) => entries.length > 1)
+      .map(([id, entries]) => ({ id, entries }))
+
+    return { success: true, duplicates: actualDuplicates }
+  } catch (error) {
+    console.error('[IPC check-duplicates] Error:', error)
+    return { success: false, error: String(error) }
+  }
+})
+
+ipcMain.handle('delete-student', async (event, schoolName: string, className: string, studentId: string) => {
+  try {
+    const photoDestPath = (process.env.PHOTO_PATH || '~/Desktop/PhotographerOutput').trim()
+    // Load students
+    const studentsPath = path.join(photoDestPath, schoolName, 'students.json')
+    let students: any = {}
+    if (fs.existsSync(studentsPath)) {
+      students = JSON.parse(fs.readFileSync(studentsPath, 'utf-8'))
+    }
+
+    // Remove student
+    if (students[className]) {
+      students[className] = students[className].filter((s: any) => s.id !== studentId)
+      fs.writeFileSync(studentsPath, JSON.stringify(students, null, 2))
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('[IPC delete-student] Error:', error)
     return { success: false, error: String(error) }
   }
 })

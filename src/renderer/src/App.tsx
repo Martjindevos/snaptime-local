@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 import Import from './pages/Import'
 import ClassSelect from './pages/ClassSelect'
 import StudentCapture from './pages/StudentCapture'
+import DuplicatesChecker from './pages/DuplicatesChecker'
 import LicenseGate from './pages/LicenseGate'
 import { StudentsByClass } from '../../types'
 import logo from './assets/snaptime-logo.png'
 import './styles/app.css'
 
-type Screen = 'import' | 'classes' | 'capture'
+type Screen = 'import' | 'classes' | 'capture' | 'duplicates'
 
 interface SessionRecord {
   schoolName: string
@@ -66,6 +67,9 @@ export default function App() {
       })
       window.electron.ipcRenderer.on('open-license', () => {
         setShowLicenseModal(true)
+      })
+      window.electron.ipcRenderer.on('open-duplicates-checker', () => {
+        setScreen('duplicates')
       })
       window.electron.ipcRenderer.on('update-available', () => {
         setUpdateAvailable(true)
@@ -427,6 +431,7 @@ export default function App() {
         {screen === 'import' && <Import onComplete={handleImport} sessions={sessions} onFinishSession={handleFinishSession} archivedSessions={archivedSessions} settingsOpen={settingsOpen} onSettingsOpenChange={setSettingsOpen} />}
         {screen === 'classes' && <ClassSelect classes={Object.keys(students)} schoolName={schoolName} students={students} onSelect={handleClassSelect} onBack={handleBack} />}
         {screen === 'capture' && students[selectedClass] && <StudentCapture students={students[selectedClass]} schoolName={schoolName} className={selectedClass} photoPath={photoPath} sessionStartDate={sessionStartDate} autoSelectStudentId={autoSelectStudentId} onUpdateStudent={handleUpdateStudent} />}
+        {screen === 'duplicates' && <DuplicatesChecker schoolName={schoolName} students={students} onClose={() => setScreen('import')} />}
       </main>
 
       {showLicenseModal && (
