@@ -104,38 +104,39 @@ export default function App() {
     }
 
     // Load session from file via IPC
-    console.log('[Session Load] Starting load, window.electron:', !!window.electron?.ipcRenderer)
+    console.log('[Session Load] START')
     if (window.electron?.ipcRenderer) {
       window.electron.ipcRenderer.invoke('load-session').then((result: any) => {
-        console.log('[Session Load] IPC result:', result)
+        console.log('[Session Load] GOT RESULT', JSON.stringify(result).substring(0, 200))
         if (result?.success && result?.data) {
+          console.log('[Session Load] HAS DATA')
           const { screen: s, schoolName: sn, photoPath: pp, students: st, selectedClass: sc, sessions: sess, archivedSessions: archived } = result.data
-          console.log('[Session Load] Parsed:', { screen: s, schoolName: sn, selectedClass: sc, hasStudents: !!st, classCount: Object.keys(st || {}).length, sessionCount: Array.isArray(sess) ? sess.length : 0 })
+          console.log('[Session Load] EXTRACTED', { s, sn, sc, stKeys: Object.keys(st || {}) })
           if (st && Object.keys(st).length > 0) {
-            console.log('[Session Load] Restoring session with', Object.keys(st).length, 'classes')
+            console.log('[Session Load] SETTING STATE')
             setSchoolName(sn || '')
             setPhotoPath(pp || '')
             setStudents(st)
             setSelectedClass(sc || '')
             setScreen(s || 'import')
-            // Restore sessions history if present
             if (Array.isArray(sess) && sess.length > 0) {
-              console.log('[Session Load] Restoring', sess.length, 'sessions')
               setSessions(sess)
             }
             if (Array.isArray(archived) && archived.length > 0) {
-              console.log('[Session Load] Restoring', archived.length, 'archived sessions')
               setArchivedSessions(archived)
             }
+            console.log('[Session Load] STATE SET DONE')
+          } else {
+            console.log('[Session Load] NO STUDENTS', st, Object.keys(st || {}))
           }
         } else {
-          console.log('[Session Load] No saved session found or error:', result)
+          console.log('[Session Load] NO SUCCESS OR DATA', result)
         }
       }).catch((err: any) => {
-        console.error('[Session Load] IPC failed:', err)
+        console.error('[Session Load] ERROR', err)
       })
     } else {
-      console.warn('[Session Load] window.electron.ipcRenderer not available')
+      console.warn('[Session Load] NO ELECTRON')
     }
 
     const sessionsList = localStorage.getItem('sessions')

@@ -17,11 +17,17 @@ const saveSession = (data: any) => {
 
 const loadSession = () => {
   try {
+    console.log('[Session] Load attempt, path:', sessionPath)
+    console.log('[Session] File exists:', fs.existsSync(sessionPath))
     if (fs.existsSync(sessionPath)) {
-      return JSON.parse(fs.readFileSync(sessionPath, 'utf-8'))
+      const content = fs.readFileSync(sessionPath, 'utf-8')
+      console.log('[Session] File size:', content.length)
+      const parsed = JSON.parse(content)
+      console.log('[Session] Parsed OK')
+      return parsed
     }
-  } catch (err) {
-    console.error('[Session] Failed to load:', err)
+  } catch (err: any) {
+    console.error('[Session] Failed to load:', err.message)
   }
   return null
 }
@@ -513,6 +519,11 @@ ipcMain.handle('load-session', async () => {
   try {
     const data = loadSession()
     console.log('[Session IPC] Loaded:', !!data)
+    if (data) {
+      console.log('[Session IPC] Data keys:', Object.keys(data))
+      console.log('[Session IPC] SchoolName:', data.schoolName)
+      console.log('[Session IPC] StudentCount:', Object.keys(data.students || {}).length)
+    }
     return { success: true, data }
   } catch (err) {
     console.error('[Session IPC] Load failed:', err)
