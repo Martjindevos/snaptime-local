@@ -103,12 +103,11 @@ export default function App() {
       }
     }
 
-    const saved = localStorage.getItem('session')
-    console.log('[Session Load] Found saved session:', !!saved)
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved)
-        const { screen: s, schoolName: sn, photoPath: pp, students: st, selectedClass: sc } = parsed
+    // Load session from file via IPC
+    window.electron.ipcRenderer.invoke('load-session').then((result: any) => {
+      console.log('[Session Load] IPC result:', result)
+      if (result.success && result.data) {
+        const { screen: s, schoolName: sn, photoPath: pp, students: st, selectedClass: sc } = result.data
         console.log('[Session Load] Parsed:', { screen: s, schoolName: sn, selectedClass: sc, hasStudents: !!st, classCount: Object.keys(st || {}).length })
         if (st && Object.keys(st).length > 0) {
           console.log('[Session Load] Restoring session')
@@ -117,10 +116,12 @@ export default function App() {
           setStudents(st)
           setSelectedClass(sc || '')
         }
-      } catch (e) {
-        console.log('Could not restore session', e)
+      } else {
+        console.log('[Session Load] No saved session found')
       }
-    }
+    }).catch((err: any) => {
+      console.error('[Session Load] IPC failed:', err)
+    })
 
     const sessionsList = localStorage.getItem('sessions')
     const savedSessionsList = localStorage.getItem('savedSessions')
@@ -170,13 +171,15 @@ export default function App() {
     }
   }, [])
 
-  // Save session to localStorage
+  // Save session to file via IPC
   useEffect(() => {
     const sessionData = {
       screen, schoolName, photoPath, students, selectedClass
     }
     console.log('[Session Save]', { screen, schoolName, selectedClass, studentsCount: Object.keys(students).length })
-    localStorage.setItem('session', JSON.stringify(sessionData))
+    window.electron.ipcRenderer.invoke('save-session', sessionData).catch((err: any) => {
+      console.error('[Session Save] IPC failed:', err)
+    })
   }, [screen, schoolName, photoPath, students, selectedClass])
 
   const handleImport = (school: string, path: string, data: StudentsByClass, className?: string, isResume?: boolean, startDate?: string) => {
@@ -190,30 +193,30 @@ export default function App() {
       setSessionStartDate(startDate || new Date().toISOString().split('T')[0])
       setIsResuming(true)
       setScreen('capture')
-      // Immediately save to localStorage
-      console.log('[Import] Saving to localStorage')
-      localStorage.setItem('session', JSON.stringify({
+      // Immediately save to file
+      console.log('[Import] Saving session')
+      window.electron.ipcRenderer.invoke('save-session', {
         screen: 'capture',
         schoolName: school,
         photoPath: path,
         students: data,
         selectedClass: className
-      }))
+      }).catch((err: any) => console.error('[Import Save] Failed:', err))
     } else {
       // Go to class select
       setSelectedClass('')
       setSessionStartDate('')
       setIsResuming(isResume ?? false)
       setScreen('classes')
-      // Immediately save to localStorage
-      console.log('[Import] Saving to localStorage')
-      localStorage.setItem('session', JSON.stringify({
+      // Immediately save to file
+      console.log('[Import] Saving session')
+      window.electron.ipcRenderer.invoke('save-session', {
         screen: 'classes',
         schoolName: school,
         photoPath: path,
         students: data,
         selectedClass: ''
-      }))
+      }).catch((err: any) => console.error('[Import Save] Failed:', err))
     }
   }
 
@@ -319,13 +322,13 @@ export default function App() {
     setScreen(newScreen)
     // Save immediately when navigating back
     console.log('[Back] Saving session at screen:', newScreen)
-    localStorage.setItem('session', JSON.stringify({
+    window.electron.ipcRenderer.invoke('save-session', {
       screen: newScreen,
       schoolName,
       photoPath,
       students,
       selectedClass
-    }))
+    }).catch((err: any) => console.error('[Back Save] Failed:', err))
   }
 
   const handleFinishSession = (index: number) => {

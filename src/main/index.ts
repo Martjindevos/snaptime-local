@@ -1,8 +1,30 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu, shell, clipboard } = require('electron')
 const path = require('path')
+const fs = require('fs')
 const { autoUpdater } = require('electron-updater')
 
 let mainWindow
+
+// Session file storage
+const sessionPath = path.join(app.getPath('userData'), 'session.json')
+const saveSession = (data: any) => {
+  try {
+    fs.writeFileSync(sessionPath, JSON.stringify(data, null, 2))
+  } catch (err) {
+    console.error('[Session] Failed to save:', err)
+  }
+}
+
+const loadSession = () => {
+  try {
+    if (fs.existsSync(sessionPath)) {
+      return JSON.parse(fs.readFileSync(sessionPath, 'utf-8'))
+    }
+  } catch (err) {
+    console.error('[Session] Failed to load:', err)
+  }
+  return null
+}
 
 function buildAppMenu() {
   console.log('[Menu] Building app menu...')
@@ -141,7 +163,6 @@ const { detectCamera, capturePhoto, movePhotoToFolder, migrateStudentPhotos } = 
 import { DropboxUploader } from './handlers/dropboxHandler'
 import { ensureLocationChannel, joinViaClientUri } from './handlers/teamspeakHandler'
 import { getLicenseStatus, validateSnapTimeLicense } from './handlers/licenseHandler'
-const fs = require('fs')
 const os = require('os')
 
 // Dropbox instance (initialized with user settings)
@@ -462,6 +483,29 @@ ipcMain.handle('connect-teamspeak-channel', async (event, locationName: string) 
   } catch (error) {
     console.error('[IPC connect-teamspeak-channel] Error:', error)
     return { success: false, error: String(error) }
+  }
+})
+
+// Session persistence via file storage
+ipcMain.handle('save-session', async (event, sessionData: any) => {
+  try {
+    saveSession(sessionData)
+    console.log('[Session IPC] Saved')
+    return { success: true }
+  } catch (err) {
+    console.error('[Session IPC] Save failed:', err)
+    return { success: false, error: String(err) }
+  }
+})
+
+ipcMain.handle('load-session', async () => {
+  try {
+    const data = loadSession()
+    console.log('[Session IPC] Loaded:', !!data)
+    return { success: true, data }
+  } catch (err) {
+    console.error('[Session IPC] Load failed:', err)
+    return { success: false, error: String(err) }
   }
 })
 
