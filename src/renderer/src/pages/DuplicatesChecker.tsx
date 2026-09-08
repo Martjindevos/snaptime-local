@@ -79,7 +79,7 @@ export default function DuplicatesChecker({ schoolName, students, onClose }: Pro
                   Student ID: {dup.id}
                 </h3>
 
-                {dup.entries.map((entry: any, idx: number) => (
+                {dup.entries.filter((entry: any) => entry.student.prefix !== 'voorvoegsel' && entry.student.lastName !== 'achternaam').map((entry: any, idx: number) => (
                   <div
                     key={idx}
                     style={{
