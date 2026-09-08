@@ -196,7 +196,7 @@ export default function StudentCapture({ students, schoolName, className, photoP
 
     console.log('[handleSelectStudent] Switching to:', student.id)
     setSelected(student)
-    setError('Ready to capture - take photo manually or click Capture')
+    setError('')
     setLastPhoto(null)
     setAllStudentPhotos([])
     console.log('[handleSelectStudent] Cleared gallery')
@@ -444,9 +444,9 @@ export default function StudentCapture({ students, schoolName, className, photoP
         </div>
 
         <div className="capture-panel">
-          <h3>{selected ? `${[selected.firstName, selected.prefix, selected.lastName].filter(v => v && v !== 'undefined').join(' ')}` : 'Select a student'}</h3>
-          <p>ID: {selected?.id || '—'}</p>
-          <p className={connected ? 'ok' : 'error'}>
+          <h3 style={{ fontSize: '28px', marginBottom: '8px' }}>{selected ? `${[selected.firstName, selected.prefix, selected.lastName].filter(v => v && v !== 'undefined').join(' ')}` : 'Select a student'}</h3>
+          <p style={{ fontSize: '12px', margin: '4px 0' }}>ID: {selected?.id || '—'}</p>
+          <p className={connected ? 'ok' : 'error'} style={{ fontSize: '12px' }}>
             {connected ? (
               <>
                 <CameraIcon />
@@ -459,7 +459,7 @@ export default function StudentCapture({ students, schoolName, className, photoP
               </>
             )}
           </p>
-          <p className="error" style={{ visibility: error ? 'visible' : 'hidden', height: '24px', margin: '8px 0' }}>
+          <p className="error" style={{ visibility: error ? 'visible' : 'hidden', height: '20px', margin: '4px 0', fontSize: '12px' }}>
             {error || ' '}
           </p>
           <button onClick={handleCapture} disabled={!connected || !selected} className="btn-capture">
@@ -542,7 +542,7 @@ export default function StudentCapture({ students, schoolName, className, photoP
               padding: '20px',
               maxWidth: '400px',
               width: '90%',
-              maxHeight: '80vh',
+              maxHeight: '60vh',
               overflowY: 'auto'
             }}
             onClick={(e) => e.stopPropagation()}
@@ -641,7 +641,29 @@ export default function StudentCapture({ students, schoolName, className, photoP
           onClick={() => setEnlargedPhoto(null)}
           onKeyDown={(e) => e.key === 'Escape' && setEnlargedPhoto(null)}
         >
-          <div style={{ position: 'relative', maxWidth: '50%', maxHeight: '75vh' }}>
+          <button
+            onClick={() => setEnlargedPhoto(null)}
+            style={{
+              position: 'fixed',
+              top: '20px',
+              right: '20px',
+              background: '#ef4444',
+              color: 'white',
+              border: 'none',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              fontSize: '24px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1001
+            }}
+          >
+            ✕
+          </button>
+          <div style={{ position: 'relative', maxWidth: '50%',  }}>
             <img
               src={enlargedPhoto.dataUrl}
               alt="Enlarged"
@@ -653,27 +675,6 @@ export default function StudentCapture({ students, schoolName, className, photoP
               }}
               onClick={(e) => e.stopPropagation()}
             />
-            <button
-              onClick={() => setEnlargedPhoto(null)}
-              style={{
-                position: 'absolute',
-                top: '10px',
-                right: '10px',
-                background: '#ef4444',
-                color: 'white',
-                border: 'none',
-                borderRadius: '50%',
-                width: '40px',
-                height: '40px',
-                fontSize: '24px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              ✕
-            </button>
             <div
               style={{
                 position: 'absolute',
