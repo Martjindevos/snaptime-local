@@ -375,7 +375,7 @@ export default function App() {
           <h1 style={{ margin: 0 }}>SnapTime Local</h1>
         </div>
 
-        {screen !== 'import' && schoolName && (
+        {screen === 'capture' && schoolName && (
           <div style={{
             position: 'absolute',
             left: '50%',
