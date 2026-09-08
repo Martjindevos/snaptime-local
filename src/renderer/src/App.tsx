@@ -109,8 +109,8 @@ export default function App() {
       window.electron.ipcRenderer.invoke('load-session').then((result: any) => {
         console.log('[Session Load] IPC result:', result)
         if (result?.success && result?.data) {
-          const { screen: s, schoolName: sn, photoPath: pp, students: st, selectedClass: sc } = result.data
-          console.log('[Session Load] Parsed:', { screen: s, schoolName: sn, selectedClass: sc, hasStudents: !!st, classCount: Object.keys(st || {}).length })
+          const { screen: s, schoolName: sn, photoPath: pp, students: st, selectedClass: sc, sessions: sess, archivedSessions: archived } = result.data
+          console.log('[Session Load] Parsed:', { screen: s, schoolName: sn, selectedClass: sc, hasStudents: !!st, classCount: Object.keys(st || {}).length, sessionCount: sess?.length })
           if (st && Object.keys(st).length > 0) {
             console.log('[Session Load] Restoring session with', Object.keys(st).length, 'classes')
             setSchoolName(sn || '')
@@ -118,6 +118,9 @@ export default function App() {
             setStudents(st)
             setSelectedClass(sc || '')
             setScreen(s)
+            // Restore sessions history
+            if (sess) setSessions(sess)
+            if (archived) setArchivedSessions(archived)
           }
         } else {
           console.log('[Session Load] No saved session found or error:', result)
@@ -180,13 +183,13 @@ export default function App() {
   // Save session to file via IPC
   useEffect(() => {
     const sessionData = {
-      screen, schoolName, photoPath, students, selectedClass
+      screen, schoolName, photoPath, students, selectedClass, sessions, archivedSessions
     }
-    console.log('[Session Save]', { screen, schoolName, selectedClass, studentsCount: Object.keys(students).length })
+    console.log('[Session Save]', { screen, schoolName, selectedClass, studentsCount: Object.keys(students).length, sessionCount: sessions.length })
     window.electron.ipcRenderer.invoke('save-session', sessionData).catch((err: any) => {
       console.error('[Session Save] IPC failed:', err)
     })
-  }, [screen, schoolName, photoPath, students, selectedClass])
+  }, [screen, schoolName, photoPath, students, selectedClass, sessions, archivedSessions])
 
   const handleImport = (school: string, path: string, data: StudentsByClass, className?: string, isResume?: boolean, startDate?: string) => {
     setSchoolName(school)

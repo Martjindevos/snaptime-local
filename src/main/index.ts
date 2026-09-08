@@ -5,7 +5,7 @@ const { autoUpdater } = require('electron-updater')
 
 let mainWindow
 
-// Session file storage
+// Session file storage (includes working session + history)
 const sessionPath = path.join(app.getPath('userData'), 'session.json')
 const saveSession = (data: any) => {
   try {
@@ -24,6 +24,17 @@ const loadSession = () => {
     console.error('[Session] Failed to load:', err)
   }
   return null
+}
+
+const saveSessionHistory = (sessions: any, archivedSessions: any) => {
+  try {
+    const data = loadSession() || {}
+    data.sessions = sessions
+    data.archivedSessions = archivedSessions
+    fs.writeFileSync(sessionPath, JSON.stringify(data, null, 2))
+  } catch (err) {
+    console.error('[SessionHistory] Failed to save:', err)
+  }
 }
 
 function buildAppMenu() {
@@ -505,6 +516,17 @@ ipcMain.handle('load-session', async () => {
     return { success: true, data }
   } catch (err) {
     console.error('[Session IPC] Load failed:', err)
+    return { success: false, error: String(err) }
+  }
+})
+
+ipcMain.handle('save-session-history', async (event, sessions: any, archivedSessions: any) => {
+  try {
+    saveSessionHistory(sessions, archivedSessions)
+    console.log('[SessionHistory IPC] Saved')
+    return { success: true }
+  } catch (err) {
+    console.error('[SessionHistory IPC] Save failed:', err)
     return { success: false, error: String(err) }
   }
 })
