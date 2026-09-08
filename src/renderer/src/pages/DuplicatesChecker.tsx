@@ -41,15 +41,26 @@ export default function DuplicatesChecker({ schoolName, students: initialStudent
     try {
       const deleteResult = await window.electron.ipcRenderer.invoke('delete-student', schoolName, className, studentId)
       if (deleteResult.success) {
-        // Reload fresh students from disk
-        const reloadResult = await window.electron.ipcRenderer.invoke('reload-students', schoolName)
-        if (reloadResult.success) {
-          // Update local students state with fresh data
-          setStudents(reloadResult.students)
-          // Re-check duplicates with fresh data
-          checkDuplicates()
-        } else {
-          alert('Failed to reload students: ' + reloadResult.error)
+        // Remove student from local state
+        const updatedStudents = { ...students }
+        if (updatedStudents[className]) {
+          updatedStudents[className] = updatedStudents[className].filter((s: any) => s.id !== studentId)
+        }
+        setStudents(updatedStudents)
+
+        // Re-check duplicates with updated data - pass students as param to avoid closure issues
+        setLoading(true)
+        try {
+          const result = await window.electron.ipcRenderer.invoke('check-duplicates', schoolName, updatedStudents)
+          if (result.success) {
+            setDuplicates(result.duplicates)
+          } else {
+            setError(result.error || 'Failed to check duplicates')
+          }
+        } catch (err) {
+          setError(String(err))
+        } finally {
+          setLoading(false)
         }
       } else {
         alert('Failed to delete student: ' + deleteResult.error)
