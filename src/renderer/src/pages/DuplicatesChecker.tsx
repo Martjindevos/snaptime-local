@@ -53,12 +53,18 @@ export default function DuplicatesChecker({ schoolName, students: initialStudent
         console.log('[Delete] After local update:', { classStudents: updatedStudents[className]?.length })
         setStudents(updatedStudents)
 
-        // Save updated students to persist deletion
-        await window.electron.ipcRenderer.invoke('save-session', {
-          screen: 'duplicates-checker',
-          schoolName,
-          students: updatedStudents
-        }).catch((err: any) => console.error('[Delete Save] Failed:', err))
+        // Save updated students to persist deletion (merge with existing session)
+        try {
+          const current = await window.electron.ipcRenderer.invoke('load-session')
+          if (current.success && current.data) {
+            await window.electron.ipcRenderer.invoke('save-session', {
+              ...current.data,
+              students: updatedStudents
+            })
+          }
+        } catch (err) {
+          console.error('[Delete Save] Failed:', err)
+        }
 
         // Re-check duplicates with updated data
         setLoading(true)
