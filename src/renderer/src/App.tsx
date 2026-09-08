@@ -110,15 +110,12 @@ export default function App() {
         const parsed = JSON.parse(saved)
         const { screen: s, schoolName: sn, photoPath: pp, students: st, selectedClass: sc } = parsed
         console.log('[Session Load] Parsed:', { screen: s, schoolName: sn, selectedClass: sc, hasStudents: !!st, classCount: Object.keys(st || {}).length })
-        // Only restore if students has valid class names (not last names)
-        const hasValidClasses = Object.keys(st || {}).some(k => /^[0-9]/.test(k) || k === 'Stamgroep')
-        console.log('[Session Load] Valid classes:', hasValidClasses, Object.keys(st || {}))
-        if (hasValidClasses) {
+        if (st && Object.keys(st).length > 0) {
           console.log('[Session Load] Restoring session')
-          setSchoolName(sn)
-          setPhotoPath(pp)
+          setSchoolName(sn || '')
+          setPhotoPath(pp || '')
           setStudents(st)
-          setSelectedClass(sc)
+          setSelectedClass(sc || '')
         }
       } catch (e) {
         console.log('Could not restore session', e)
