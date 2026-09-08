@@ -375,7 +375,7 @@ export default function App() {
           <h1 style={{ margin: 0 }}>SnapTime Local</h1>
         </div>
 
-        {screen === 'capture' && schoolName && (
+        {(screen === 'capture' || screen === 'classes') && schoolName && (
           <div style={{
             position: 'absolute',
             left: '50%',
