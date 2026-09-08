@@ -19,6 +19,7 @@ interface Props {
   archivedSessions?: SessionRecord[]
   settingsOpen: boolean
   onSettingsOpenChange: (open: boolean) => void
+  students?: StudentsByClass
 }
 
 interface SavedSession {
@@ -46,7 +47,7 @@ interface TeamSpeakSettings {
   serverId: number
 }
 
-export default function Import({ onComplete, sessions: sessionsProp = [], onFinishSession, archivedSessions: archivedProp = [], settingsOpen, onSettingsOpenChange: setSettingsOpen }: Props) {
+export default function Import({ onComplete, sessions: sessionsProp = [], onFinishSession, archivedSessions: archivedProp = [], settingsOpen, onSettingsOpenChange: setSettingsOpen, students: studentsProp }: Props) {
   console.log('[Import] sessionsProp:', sessionsProp?.length, 'items:', sessionsProp)
   const [schoolName, setSchoolName] = useState('')
   const [fileName, setFileName] = useState('')
@@ -228,22 +229,23 @@ export default function Import({ onComplete, sessions: sessionsProp = [], onFini
     })
   }
 
-  const handleResume = (session: SavedSession, className: string, sessionStartDate: string) => {
+  const handleResume = (session: SessionRecord | SavedSession, className: string, sessionStartDate: string) => {
     console.log('[handleResume] sessionStartDate:', sessionStartDate, 'className:', className)
     connectTeamspeakForLocation(session.schoolName)
-    onComplete(session.schoolName, session.photoPath, session.students, className, true, sessionStartDate)
+    const students = 'students' in session ? session.students : studentsProp || {}
+    onComplete(session.schoolName, 'photoPath' in session ? session.photoPath : DEFAULT_PHOTO_PATH, students, className, true, sessionStartDate)
   }
 
-  const handleExportAbsence = (session: SessionRecord, savedSession: SavedSession) => {
+  const handleExportAbsence = (session: SessionRecord) => {
     // Get all students from school, excluding Stamgroep
     const allStudents: Array<{ id: string; firstName: string; lastName: string; prefix?: string; className: string }> = []
     const photoCounts: { [id: string]: number } = {}
 
     // Load photo counts from localStorage for each class
-    Object.entries(savedSession.students).forEach(([className, students]) => {
+    Object.entries(studentsProp || {}).forEach(([className, students]) => {
       if (className.toLowerCase() === 'stamgroep') return
 
-      const key = `photoCounts-${savedSession.schoolName}-${className}`
+      const key = `photoCounts-${session.schoolName}-${className}`
       const saved = localStorage.getItem(key)
       if (saved) {
         try {
@@ -794,20 +796,17 @@ export default function Import({ onComplete, sessions: sessionsProp = [], onFini
           <div>
             <h2>Previous Sessions</h2>
             <div className="sessions-list">
-              {sessionsProp?.map((s, i) => {
-                const savedSession = savedSessions.find(ss => ss.schoolName === s.schoolName && ss.className === s.className)
-                if (!savedSession) return null
-                return (
+              {sessionsProp?.map((s, i) => (
                 <div key={i} className="btn-session" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <button
-                    onClick={() => savedSession && handleResume(savedSession, s.className, savedSession.sessionStartDate)}
+                    onClick={() => handleResume(s, s.className, s.date)}
                     style={{ flex: 1, textAlign: 'left', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
                   >
                     <div className="session-name">{s.schoolName} - {s.className}</div>
                     <div className="session-date">{s.date}</div>
                   </button>
                   <button
-                    onClick={() => savedSession && handleExportAbsence(s, savedSession)}
+                    onClick={() => handleExportAbsence(s)}
                     style={{
                       background: '#f59e0b',
                       color: 'white',
@@ -839,8 +838,7 @@ export default function Import({ onComplete, sessions: sessionsProp = [], onFini
                     Finish
                   </button>
                 </div>
-              )
-              })}
+              ))}
             </div>
             <p style={{ marginTop: '20px', textAlign: 'center' }}>— OR —</p>
           </div>
