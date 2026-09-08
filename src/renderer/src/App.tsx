@@ -110,17 +110,23 @@ export default function App() {
         console.log('[Session Load] IPC result:', result)
         if (result?.success && result?.data) {
           const { screen: s, schoolName: sn, photoPath: pp, students: st, selectedClass: sc, sessions: sess, archivedSessions: archived } = result.data
-          console.log('[Session Load] Parsed:', { screen: s, schoolName: sn, selectedClass: sc, hasStudents: !!st, classCount: Object.keys(st || {}).length, sessionCount: sess?.length })
+          console.log('[Session Load] Parsed:', { screen: s, schoolName: sn, selectedClass: sc, hasStudents: !!st, classCount: Object.keys(st || {}).length, sessionCount: Array.isArray(sess) ? sess.length : 0 })
           if (st && Object.keys(st).length > 0) {
             console.log('[Session Load] Restoring session with', Object.keys(st).length, 'classes')
             setSchoolName(sn || '')
             setPhotoPath(pp || '')
             setStudents(st)
             setSelectedClass(sc || '')
-            setScreen(s)
-            // Restore sessions history
-            if (sess) setSessions(sess)
-            if (archived) setArchivedSessions(archived)
+            setScreen(s || 'import')
+            // Restore sessions history if present
+            if (Array.isArray(sess) && sess.length > 0) {
+              console.log('[Session Load] Restoring', sess.length, 'sessions')
+              setSessions(sess)
+            }
+            if (Array.isArray(archived) && archived.length > 0) {
+              console.log('[Session Load] Restoring', archived.length, 'archived sessions')
+              setArchivedSessions(archived)
+            }
           }
         } else {
           console.log('[Session Load] No saved session found or error:', result)
@@ -185,7 +191,7 @@ export default function App() {
     const sessionData = {
       screen, schoolName, photoPath, students, selectedClass, sessions, archivedSessions
     }
-    console.log('[Session Save]', { screen, schoolName, selectedClass, studentsCount: Object.keys(students).length, sessionCount: sessions.length })
+    console.log('[Session Save]', { screen, schoolName, selectedClass, studentsCount: Object.keys(students).length })
     window.electron.ipcRenderer.invoke('save-session', sessionData).catch((err: any) => {
       console.error('[Session Save] IPC failed:', err)
     })
