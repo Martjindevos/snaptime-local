@@ -86,31 +86,33 @@ export default function DuplicatesChecker({ schoolName, students, onClose }: Pro
 
             {error && <p className="error">{error}</p>}
 
-            {!loading && duplicates.length === 0 && (
-              <p style={{ color: '#10b981' }}>✓ No duplicate student IDs found!</p>
-            )}
+            {!loading && (() => {
+              const csvHeaders = ['roepnaam', 'Roepnaam', 'voorvoegsel', 'Voorvoegsels', 'voorvoegsel', 'achternaam', 'Achternaam', 'Leerlingnummer', 'leerlingnummer', 'id', 'student', 'ID']
+              const filtered = duplicates.filter((dup) => {
+                if (csvHeaders.includes(dup.id)) return false
+                const validEntries = dup.entries.filter((entry: any) => {
+                  const s = entry.student || {}
+                  return !csvHeaders.includes(s.firstName) && !csvHeaders.includes(s.prefix) && !csvHeaders.includes(s.lastName) && !csvHeaders.includes(entry.className)
+                })
+                return validEntries.length > 0
+              })
 
-            {!loading && duplicates.length > 0 && (
-              <div>
-                <p style={{ color: '#ef4444', fontWeight: 600, marginBottom: '20px' }}>
-                  Found {duplicates.length} duplicate student ID(s):
-                </p>
+              if (filtered.length === 0) {
+                return <p style={{ color: '#10b981' }}>✓ No duplicate student IDs found!</p>
+              }
 
-                {duplicates.filter((dup) => {
-                  const csvHeaders = ['roepnaam', 'Roepnaam', 'voorvoegsel', 'Voorvoegsels', 'voorvoegsel', 'achternaam', 'Achternaam', 'Leerlingnummer', 'leerlingnummer', 'id', 'student', 'ID']
-                  if (csvHeaders.includes(dup.id)) return false
-                  const validEntries = dup.entries.filter((entry: any) => {
-                    const s = entry.student || {}
-                    return !csvHeaders.includes(s.firstName) && !csvHeaders.includes(s.prefix) && !csvHeaders.includes(s.lastName) && !csvHeaders.includes(entry.className)
-                  })
-                  return validEntries.length > 0
-                }).map((dup) => {
-                  const validEntries = dup.entries.filter((entry: any) => {
-                    const csvHeaders = ['roepnaam', 'Roepnaam', 'voorvoegsel', 'Voorvoegsels', 'voorvoegsel', 'achternaam', 'Achternaam', 'Leerlingnummer', 'leerlingnummer', 'id', 'student', 'ID']
-                    const s = entry.student || {}
-                    return !csvHeaders.includes(s.firstName) && !csvHeaders.includes(s.prefix) && !csvHeaders.includes(s.lastName) && !csvHeaders.includes(entry.className)
-                  })
-                  return (
+              return (
+                <div>
+                  <p style={{ color: '#ef4444', fontWeight: 600, marginBottom: '20px' }}>
+                    Found {filtered.length} duplicate student ID(s):
+                  </p>
+
+                  {filtered.map((dup) => {
+                    const validEntries = dup.entries.filter((entry: any) => {
+                      const s = entry.student || {}
+                      return !csvHeaders.includes(s.firstName) && !csvHeaders.includes(s.prefix) && !csvHeaders.includes(s.lastName) && !csvHeaders.includes(entry.className)
+                    })
+                    return (
               <div
                 key={dup.id}
                 style={{
@@ -165,10 +167,11 @@ export default function DuplicatesChecker({ schoolName, students, onClose }: Pro
                   </div>
                 ))}
               </div>
-                  )
-                })}
-              </div>
-            )}
+                    )
+                  })}
+                </div>
+              )
+            })()}
 
             <button
               onClick={() => setSelectedSchool(null)}
