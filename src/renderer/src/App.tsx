@@ -380,17 +380,17 @@ export default function App() {
             border: '3px solid #f59e0b',
             borderRadius: '12px',
             padding: '8px 24px',
-            textAlign: 'center',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px'
+            gap: '16px',
+            whiteSpace: 'nowrap'
           }}>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>
+            <div style={{ fontSize: selectedClass ? '14px' : '24px', fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '1px', margin: 0, transition: 'font-size 0.2s' }}>
               {schoolName}
             </div>
-            {selectedClass && (
-              <div style={{ fontSize: '14px', color: '#6b7280', fontWeight: 600 }}>
-                Klas: <span style={{ color: '#1f2937' }}>{selectedClass}</span>
+            {selectedClass && screen !== 'classes' && (
+              <div style={{ fontSize: '32px', fontWeight: 700, color: '#1f2937', margin: 0 }}>
+                {selectedClass}
               </div>
             )}
           </div>

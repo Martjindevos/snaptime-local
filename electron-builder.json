@@ -4,6 +4,6 @@
   "publish": {"provider": "github", "owner": "Martjindevos", "repo": "snaptime-local", "token": "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"},
   "files": ["dist/**/*", "node_modules/**/*"],
   "directories": {"buildResources": "assets", "output": "release"},
-  "mac": {"target": ["dmg"], "category": "public.app-category.photography", "artifactName": "${productName}-${version}.${ext}", "hardenedRuntime": false, "gatekeeperAssess": false, "skipNotarize": true},
+  "mac": {"target": ["dmg"], "category": "public.app-category.photography", "artifactName": "${productName}-${version}.${ext}", "sign": null},
   "dmg": {"window": {"width": 500, "height": 300}, "contents": [{"x": 80, "y": 130, "type": "file"}, {"x": 350, "y": 130, "type": "link", "path": "/Applications"}]}
 }

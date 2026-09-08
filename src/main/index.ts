@@ -5,6 +5,7 @@ const { autoUpdater } = require('electron-updater')
 let mainWindow
 
 function buildAppMenu() {
+  console.log('[Menu] Building app menu...')
   const template = [
     {
       label: 'SnapTime Local',
@@ -19,12 +20,17 @@ function buildAppMenu() {
           click: () => mainWindow?.webContents.send('open-license'),
         },
         { type: 'separator' },
-        { role: 'quit' },
+        { label: 'Quit SnapTime Local', role: 'quit' },
       ],
     },
     { role: 'windowMenu' },
   ]
-  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+  try {
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+    console.log('[Menu] Menu set successfully')
+  } catch (error) {
+    console.error('[Menu] Error setting menu:', error)
+  }
 }
 
 function createWindow() {
