@@ -315,7 +315,17 @@ export default function App() {
   }
 
   const handleBack = () => {
-    setScreen(screen === 'capture' ? 'classes' : 'import')
+    const newScreen = screen === 'capture' ? 'classes' : 'import'
+    setScreen(newScreen)
+    // Save immediately when navigating back
+    console.log('[Back] Saving session at screen:', newScreen)
+    localStorage.setItem('session', JSON.stringify({
+      screen: newScreen,
+      schoolName,
+      photoPath,
+      students,
+      selectedClass
+    }))
   }
 
   const handleFinishSession = (index: number) => {
