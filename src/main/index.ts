@@ -676,3 +676,18 @@ ipcMain.handle('delete-student', async (event, schoolName: string, className: st
     return { success: false, error: String(error) }
   }
 })
+
+ipcMain.handle('reload-students', async (event, schoolName: string) => {
+  try {
+    const photoDestPath = (process.env.PHOTO_PATH || '~/Desktop/PhotographerOutput').trim()
+    const studentsPath = path.join(photoDestPath, schoolName, 'students.json')
+    let students: any = {}
+    if (fs.existsSync(studentsPath)) {
+      students = JSON.parse(fs.readFileSync(studentsPath, 'utf-8'))
+    }
+    return { success: true, students }
+  } catch (error) {
+    console.error('[IPC reload-students] Error:', error)
+    return { success: false, error: String(error) }
+  }
+})

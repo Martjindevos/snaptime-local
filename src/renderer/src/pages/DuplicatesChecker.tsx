@@ -6,8 +6,9 @@ interface Props {
   onClose: () => void
 }
 
-export default function DuplicatesChecker({ schoolName, students, onClose }: Props) {
+export default function DuplicatesChecker({ schoolName, students: initialStudents, onClose }: Props) {
   const [selectedSchool, setSelectedSchool] = useState<string | null>(null)
+  const [students, setStudents] = useState<any>(initialStudents)
   const [duplicates, setDuplicates] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -38,11 +39,20 @@ export default function DuplicatesChecker({ schoolName, students, onClose }: Pro
     if (!confirm(`Delete student ${studentId} from ${className}?`)) return
 
     try {
-      const result = await window.electron.ipcRenderer.invoke('delete-student', schoolName, className, studentId)
-      if (result.success) {
-        checkDuplicates()
+      const deleteResult = await window.electron.ipcRenderer.invoke('delete-student', schoolName, className, studentId)
+      if (deleteResult.success) {
+        // Reload fresh students from disk
+        const reloadResult = await window.electron.ipcRenderer.invoke('reload-students', schoolName)
+        if (reloadResult.success) {
+          // Update local students state with fresh data
+          setStudents(reloadResult.students)
+          // Re-check duplicates with fresh data
+          checkDuplicates()
+        } else {
+          alert('Failed to reload students: ' + reloadResult.error)
+        }
       } else {
-        alert('Failed to delete student: ' + result.error)
+        alert('Failed to delete student: ' + deleteResult.error)
       }
     } catch (err) {
       alert('Error deleting student: ' + String(err))
