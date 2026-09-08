@@ -104,19 +104,24 @@ export default function App() {
     }
 
     const saved = localStorage.getItem('session')
+    console.log('[Session Load] Found saved session:', !!saved)
     if (saved) {
       try {
-        const { screen: s, schoolName: sn, photoPath: pp, students: st, selectedClass: sc } = JSON.parse(saved)
+        const parsed = JSON.parse(saved)
+        const { screen: s, schoolName: sn, photoPath: pp, students: st, selectedClass: sc } = parsed
+        console.log('[Session Load] Parsed:', { screen: s, schoolName: sn, selectedClass: sc, hasStudents: !!st, classCount: Object.keys(st || {}).length })
         // Only restore if students has valid class names (not last names)
-        const hasValidClasses = Object.keys(st).some(k => /^[0-9]/.test(k) || k === 'Stamgroep')
+        const hasValidClasses = Object.keys(st || {}).some(k => /^[0-9]/.test(k) || k === 'Stamgroep')
+        console.log('[Session Load] Valid classes:', hasValidClasses, Object.keys(st || {}))
         if (hasValidClasses) {
+          console.log('[Session Load] Restoring session')
           setSchoolName(sn)
           setPhotoPath(pp)
           setStudents(st)
           setSelectedClass(sc)
         }
       } catch (e) {
-        console.log('Could not restore session')
+        console.log('Could not restore session', e)
       }
     }
 
@@ -170,9 +175,11 @@ export default function App() {
 
   // Save session to localStorage
   useEffect(() => {
-    localStorage.setItem('session', JSON.stringify({
+    const sessionData = {
       screen, schoolName, photoPath, students, selectedClass
-    }))
+    }
+    console.log('[Session Save]', { screen, schoolName, selectedClass, studentsCount: Object.keys(students).length })
+    localStorage.setItem('session', JSON.stringify(sessionData))
   }, [screen, schoolName, photoPath, students, selectedClass])
 
   const handleImport = (school: string, path: string, data: StudentsByClass, className?: string, isResume?: boolean, startDate?: string) => {
