@@ -95,7 +95,21 @@ export default function DuplicatesChecker({ schoolName, students, onClose }: Pro
                   Found {duplicates.length} duplicate student ID(s):
                 </p>
 
-                {duplicates.filter((dup) => dup.id !== 'roepnaam' && dup.id !== 'voorvoegsel' && dup.id !== 'achternaam').map((dup) => (
+                {duplicates.filter((dup) => {
+                  const csvHeaders = ['roepnaam', 'voorvoegsel', 'achternaam', 'id', 'student', 'ID']
+                  if (csvHeaders.includes(dup.id)) return false
+                  const validEntries = dup.entries.filter((entry: any) => {
+                    const s = entry.student || {}
+                    return !csvHeaders.includes(s.firstName) && !csvHeaders.includes(s.prefix) && !csvHeaders.includes(s.lastName) && !csvHeaders.includes(entry.className)
+                  })
+                  return validEntries.length > 0
+                }).map((dup) => {
+                  const validEntries = dup.entries.filter((entry: any) => {
+                    const csvHeaders = ['roepnaam', 'voorvoegsel', 'achternaam', 'id', 'student', 'ID']
+                    const s = entry.student || {}
+                    return !csvHeaders.includes(s.firstName) && !csvHeaders.includes(s.prefix) && !csvHeaders.includes(s.lastName) && !csvHeaders.includes(entry.className)
+                  })
+                  return (
               <div
                 key={dup.id}
                 style={{
@@ -110,7 +124,7 @@ export default function DuplicatesChecker({ schoolName, students, onClose }: Pro
                   Student ID: {dup.id}
                 </h3>
 
-                {dup.entries.filter((entry: any) => entry.student.prefix !== 'voorvoegsel' && entry.student.lastName !== 'achternaam').map((entry: any, idx: number) => (
+                {validEntries.map((entry: any, idx: number) => (
                   <div
                     key={idx}
                     style={{
@@ -150,7 +164,8 @@ export default function DuplicatesChecker({ schoolName, students, onClose }: Pro
                   </div>
                 ))}
               </div>
-                ))}
+                  )
+                })}
               </div>
             )}
 
