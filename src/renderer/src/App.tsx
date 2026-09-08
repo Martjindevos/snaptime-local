@@ -117,6 +117,13 @@ export default function App() {
             setPhotoPath(pp || '')
             setStudents(st)
             setSelectedClass(sc || '')
+            // If restoring with data on import screen, go to classes screen instead
+            if (s === 'import') {
+              console.log('[Session Load] Redirecting from import to classes')
+              setScreen('classes')
+            } else {
+              setScreen(s)
+            }
           }
         } else {
           console.log('[Session Load] No saved session found or error:', result)
