@@ -47,6 +47,7 @@ interface TeamSpeakSettings {
 }
 
 export default function Import({ onComplete, sessions: sessionsProp = [], onFinishSession, archivedSessions: archivedProp = [], settingsOpen, onSettingsOpenChange: setSettingsOpen }: Props) {
+  console.log('[Import] sessionsProp:', sessionsProp?.length, 'items:', sessionsProp)
   const [schoolName, setSchoolName] = useState('')
   const [fileName, setFileName] = useState('')
   const [loading, setLoading] = useState(false)
