@@ -77,27 +77,31 @@ export default function DuplicatesChecker({ schoolName, students: initialStudent
 
         {!selectedSchool && (
           <div>
-            <p style={{ marginBottom: '16px', color: '#374151' }}>Select a school to check:</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {[schoolName].filter(Boolean).map((school) => (
-                <button
-                  key={school}
-                  onClick={() => setSelectedSchool(school)}
-                  style={{
-                    padding: '12px 16px',
-                    background: '#3b82f6',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: 600,
-                    textAlign: 'left'
-                  }}
-                >
-                  {school}
-                </button>
-              ))}
-            </div>
+            {!schoolName ? (
+              <p style={{ color: '#dc2626' }}>No school loaded. Import data first.</p>
+            ) : (
+              <>
+                <p style={{ marginBottom: '16px', color: '#374151' }}>Select a school to check:</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <button
+                    key={schoolName}
+                    onClick={() => setSelectedSchool(schoolName)}
+                    style={{
+                      padding: '12px 16px',
+                      background: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      textAlign: 'left'
+                    }}
+                  >
+                    {schoolName}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         )}
 
