@@ -130,6 +130,22 @@ export default function DuplicatesChecker({ schoolName, students: initialStudent
 
             {error && <p className="error">{error}</p>}
 
+            <button
+              onClick={checkDuplicates}
+              style={{
+                padding: '8px 16px',
+                background: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                marginBottom: '16px',
+                fontWeight: 600
+              }}
+            >
+              Re-Check Duplicates
+            </button>
+
             {!loading && (() => {
               const csvHeaders = ['roepnaam', 'Roepnaam', 'voorvoegsel', 'Voorvoegsels', 'voorvoegsel', 'achternaam', 'Achternaam', 'Leerlingnummer', 'leerlingnummer', 'id', 'student', 'ID']
               const filtered = duplicates.filter((dup) => {
