@@ -21,6 +21,7 @@ export default function DuplicatesChecker({ schoolName, students, onClose }: Pro
   const checkDuplicates = async () => {
     try {
       const result = await window.electron.ipcRenderer.invoke('check-duplicates', schoolName, students)
+      console.log('[DuplicatesChecker] Raw result:', result)
       if (result.success) {
         setDuplicates(result.duplicates)
       } else {
@@ -96,7 +97,7 @@ export default function DuplicatesChecker({ schoolName, students, onClose }: Pro
                 </p>
 
                 {duplicates.filter((dup) => {
-                  const csvHeaders = ['roepnaam', 'voorvoegsel', 'achternaam', 'id', 'student', 'ID']
+                  const csvHeaders = ['roepnaam', 'Roepnaam', 'voorvoegsel', 'Voorvoegsels', 'voorvoegsel', 'achternaam', 'Achternaam', 'Leerlingnummer', 'leerlingnummer', 'id', 'student', 'ID']
                   if (csvHeaders.includes(dup.id)) return false
                   const validEntries = dup.entries.filter((entry: any) => {
                     const s = entry.student || {}
@@ -105,7 +106,7 @@ export default function DuplicatesChecker({ schoolName, students, onClose }: Pro
                   return validEntries.length > 0
                 }).map((dup) => {
                   const validEntries = dup.entries.filter((entry: any) => {
-                    const csvHeaders = ['roepnaam', 'voorvoegsel', 'achternaam', 'id', 'student', 'ID']
+                    const csvHeaders = ['roepnaam', 'Roepnaam', 'voorvoegsel', 'Voorvoegsels', 'voorvoegsel', 'achternaam', 'Achternaam', 'Leerlingnummer', 'leerlingnummer', 'id', 'student', 'ID']
                     const s = entry.student || {}
                     return !csvHeaders.includes(s.firstName) && !csvHeaders.includes(s.prefix) && !csvHeaders.includes(s.lastName) && !csvHeaders.includes(entry.className)
                   })
