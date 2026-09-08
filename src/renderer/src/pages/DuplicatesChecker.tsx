@@ -7,13 +7,16 @@ interface Props {
 }
 
 export default function DuplicatesChecker({ schoolName, students, onClose }: Props) {
+  const [selectedSchool, setSelectedSchool] = useState<string | null>(schoolName || null)
   const [duplicates, setDuplicates] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    checkDuplicates()
-  }, [])
+    if (selectedSchool) {
+      checkDuplicates()
+    }
+  }, [selectedSchool])
 
   const checkDuplicates = async () => {
     try {
@@ -50,21 +53,49 @@ export default function DuplicatesChecker({ schoolName, students, onClose }: Pro
       <div className="card" style={{ maxWidth: '800px' }}>
         <h2>Check for Duplicate Students</h2>
 
-        {loading && <p>Scanning for duplicates...</p>}
+        {!selectedSchool && (
+          <div>
+            <p style={{ marginBottom: '16px', color: '#374151' }}>Select a school to check:</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {[schoolName].filter(Boolean).map((school) => (
+                <button
+                  key={school}
+                  onClick={() => setSelectedSchool(school)}
+                  style={{
+                    padding: '12px 16px',
+                    background: '#3b82f6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                    textAlign: 'left'
+                  }}
+                >
+                  {school}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {selectedSchool && (
+          <>
+            {loading && <p>Scanning for duplicates in {selectedSchool}...</p>}
 
         {error && <p className="error">{error}</p>}
 
-        {!loading && duplicates.length === 0 && (
-          <p style={{ color: '#10b981' }}>✓ No duplicate student IDs found!</p>
-        )}
+            {!loading && duplicates.length === 0 && (
+              <p style={{ color: '#10b981' }}>✓ No duplicate student IDs found!</p>
+            )}
 
-        {!loading && duplicates.length > 0 && (
-          <div>
-            <p style={{ color: '#ef4444', fontWeight: 600, marginBottom: '20px' }}>
-              Found {duplicates.length} duplicate student ID(s):
-            </p>
+            {!loading && duplicates.length > 0 && (
+              <div>
+                <p style={{ color: '#ef4444', fontWeight: 600, marginBottom: '20px' }}>
+                  Found {duplicates.length} duplicate student ID(s):
+                </p>
 
-            {duplicates.map((dup) => (
+                {duplicates.filter((dup) => dup.id !== 'roepnaam' && dup.id !== 'voorvoegsel' && dup.id !== 'achternaam').map((dup) => (
               <div
                 key={dup.id}
                 style={{
@@ -119,8 +150,27 @@ export default function DuplicatesChecker({ schoolName, students, onClose }: Pro
                   </div>
                 ))}
               </div>
-            ))}
-          </div>
+                ))}
+              </div>
+            )}
+
+            <button
+              onClick={() => setSelectedSchool(null)}
+              style={{
+                marginTop: '16px',
+                marginRight: '8px',
+                background: '#9ca3af',
+                color: 'white',
+                padding: '10px 20px',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 600
+              }}
+            >
+              Back
+            </button>
+          </>
         )}
 
         <button
