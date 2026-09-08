@@ -4,9 +4,10 @@ interface Props {
   schoolName: string
   students: any
   onClose: () => void
+  onStudentsUpdate?: (students: any) => void
 }
 
-export default function DuplicatesChecker({ schoolName, students: initialStudents, onClose }: Props) {
+export default function DuplicatesChecker({ schoolName, students: initialStudents, onClose, onStudentsUpdate }: Props) {
   const [selectedSchool, setSelectedSchool] = useState<string | null>(null)
   const [students, setStudents] = useState<any>(initialStudents)
   const [duplicates, setDuplicates] = useState<any[]>([])
@@ -56,7 +57,7 @@ export default function DuplicatesChecker({ schoolName, students: initialStudent
         }
         setStudents(updatedStudents)
 
-        // Save updated students to persist deletion (merge with existing session)
+        // Save updated students to persist deletion
         try {
           const current = await window.electron.ipcRenderer.invoke('load-session')
           if (current.success && current.data) {
@@ -65,24 +66,28 @@ export default function DuplicatesChecker({ schoolName, students: initialStudent
               students: updatedStudents
             })
           }
-        } catch (err) {
-          console.error('[Delete Save] Failed:', err)
-        }
 
-        // Re-check duplicates with updated data
-        setLoading(true)
-        try {
-          const result = await window.electron.ipcRenderer.invoke('check-duplicates', schoolName, updatedStudents)
-          console.log('[Delete] New duplicates result:', result)
-          if (result.success) {
-            setDuplicates(result.duplicates)
-          } else {
-            setError(result.error || 'Failed to check duplicates')
+          // Reload students from file to ensure permanent deletion
+          const reloaded = await window.electron.ipcRenderer.invoke('reload-students', schoolName)
+          if (reloaded.success) {
+            console.log('[Delete] Reloaded students from file:', reloaded.students)
+            setStudents(reloaded.students)
+            // Notify parent to update too
+            onStudentsUpdate?.(reloaded.students)
+
+            // Re-check with reloaded data
+            setLoading(true)
+            const result = await window.electron.ipcRenderer.invoke('check-duplicates', schoolName, reloaded.students)
+            console.log('[Delete] New duplicates result:', result)
+            if (result.success) {
+              setDuplicates(result.duplicates)
+            } else {
+              setError(result.error || 'Failed to check duplicates')
+            }
+            setLoading(false)
           }
         } catch (err) {
-          setError(String(err))
-        } finally {
-          setLoading(false)
+          console.error('[Delete Save] Failed:', err)
         }
       } else {
         alert('Failed to delete student: ' + deleteResult.error)
