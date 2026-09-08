@@ -190,12 +190,30 @@ export default function App() {
       setSessionStartDate(startDate || new Date().toISOString().split('T')[0])
       setIsResuming(true)
       setScreen('capture')
+      // Immediately save to localStorage
+      console.log('[Import] Saving to localStorage')
+      localStorage.setItem('session', JSON.stringify({
+        screen: 'capture',
+        schoolName: school,
+        photoPath: path,
+        students: data,
+        selectedClass: className
+      }))
     } else {
       // Go to class select
       setSelectedClass('')
       setSessionStartDate('')
       setIsResuming(isResume ?? false)
       setScreen('classes')
+      // Immediately save to localStorage
+      console.log('[Import] Saving to localStorage')
+      localStorage.setItem('session', JSON.stringify({
+        screen: 'classes',
+        schoolName: school,
+        photoPath: path,
+        students: data,
+        selectedClass: ''
+      }))
     }
   }
 
