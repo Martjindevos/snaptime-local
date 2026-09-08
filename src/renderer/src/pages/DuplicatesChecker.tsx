@@ -93,9 +93,6 @@ export default function DuplicatesChecker({ schoolName, students, onClose }: Pro
                     }}
                   >
                     <div>
-                      <p style={{ margin: '0 0 4px 0', fontWeight: 600 }}>
-                        {entry.student.firstName} {entry.student.prefix} {entry.student.lastName}
-                      </p>
                       <p style={{ margin: 0, fontSize: '12px', color: '#6b7280' }}>
                         Class: {entry.className}
                       </p>
