@@ -1,5 +1,4 @@
-// Fill in once the Gumroad product exists (Product > Share > permalink at the end of the URL)
-const GUMROAD_PRODUCT_PERMALINK = 'SR0X1N7dk2fuXC3JfdPikw=='
+import os from 'os'
 
 const TRIAL_DAYS = 3
 const LICENSE_VALIDITY_DAYS = 365
@@ -10,6 +9,19 @@ interface LicenseState {
   licenseKey: string
   licenseValid: boolean
   licenseActivatedAt?: number
+  licenseExpiresAt?: number
+}
+
+function getDeviceMacAddress(): string {
+  const interfaces = os.networkInterfaces()
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name] || []) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.mac || 'unknown'
+      }
+    }
+  }
+  return 'unknown'
 }
 
 function getLicenseStatus(state: LicenseState) {
@@ -18,10 +30,9 @@ function getLicenseStatus(state: LicenseState) {
   const trialExpired = daysElapsed >= TRIAL_DAYS
 
   const hasLicense = !!state.licenseValid && !!state.licenseActivatedAt
-  const licenseDaysElapsed = hasLicense ? (Date.now() - state.licenseActivatedAt!) / MS_PER_DAY : 0
-  const licenseExpired = hasLicense && licenseDaysElapsed >= LICENSE_VALIDITY_DAYS
-  const licenseDaysLeft = hasLicense ? Math.max(0, Math.ceil(LICENSE_VALIDITY_DAYS - licenseDaysElapsed)) : 0
-  const licenseExpiresAt = hasLicense ? state.licenseActivatedAt! + LICENSE_VALIDITY_DAYS * MS_PER_DAY : null
+  const licenseExpiresAt = hasLicense ? (state.licenseExpiresAt || state.licenseActivatedAt! + LICENSE_VALIDITY_DAYS * MS_PER_DAY) : null
+  const licenseExpired = hasLicense && licenseExpiresAt && Date.now() >= licenseExpiresAt
+  const licenseDaysLeft = hasLicense && licenseExpiresAt ? Math.max(0, Math.ceil((licenseExpiresAt - Date.now()) / MS_PER_DAY)) : 0
 
   return {
     trialExpired,
@@ -36,26 +47,36 @@ function getLicenseStatus(state: LicenseState) {
   }
 }
 
-// Verifies a license key against Gumroad's public License Verification API.
-// https://app.gumroad.com/api#verifying-a-license
-async function verifyGumroadLicense(licenseKey: string): Promise<{ valid: boolean; error?: string }> {
+async function validateSnapTimeLicense(licenseKey: string): Promise<{ valid: boolean; error?: string; expiresAt?: number }> {
   try {
-    const response = await fetch('https://api.gumroad.com/v2/licenses/verify', {
+    const deviceId = getDeviceMacAddress()
+    console.log('[License Validation] Key:', licenseKey, 'DeviceId:', deviceId)
+    const response = await fetch('https://www.snaptime.nl/api/license/validate', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        product_id: GUMROAD_PRODUCT_PERMALINK,
-        license_key: licenseKey,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        key: licenseKey,
+        deviceId: deviceId,
       }),
     })
     const data: any = await response.json()
-    if (data.success) {
-      return { valid: true }
+    console.log('[License API Response]', JSON.stringify(data, null, 2))
+    if (data.valid) {
+      let expiresAt: number | undefined
+      if (data.expiresAt) {
+        expiresAt = typeof data.expiresAt === 'string' ? new Date(data.expiresAt).getTime() : data.expiresAt
+      } else if (data.expires_at) {
+        expiresAt = typeof data.expires_at === 'string' ? new Date(data.expires_at).getTime() : data.expires_at
+      } else if (data.expiry) {
+        expiresAt = typeof data.expiry === 'string' ? new Date(data.expiry).getTime() : data.expiry
+      }
+      console.log('[License expiresAt]', expiresAt, 'from', data.expiresAt || data.expires_at || data.expiry)
+      return { valid: true, expiresAt }
     }
-    return { valid: false, error: data.message || 'Invalid license key' }
+    return { valid: false, error: data.error || 'Invalid license key' }
   } catch (error) {
     return { valid: false, error: String(error) }
   }
 }
 
-export { getLicenseStatus, verifyGumroadLicense, TRIAL_DAYS }
+export { getLicenseStatus, validateSnapTimeLicense, TRIAL_DAYS }

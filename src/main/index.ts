@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, Menu, shell, clipboard } = require('electron')
 const path = require('path')
 const { autoUpdater } = require('electron-updater')
 
@@ -130,7 +130,7 @@ app.on('activate', () => {
 const { detectCamera, capturePhoto, movePhotoToFolder, migrateStudentPhotos } = require('./handlers/cameraHandler')
 import { DropboxUploader } from './handlers/dropboxHandler'
 import { ensureLocationChannel, joinViaClientUri } from './handlers/teamspeakHandler'
-import { getLicenseStatus, verifyGumroadLicense } from './handlers/licenseHandler'
+import { getLicenseStatus, validateSnapTimeLicense } from './handlers/licenseHandler'
 const fs = require('fs')
 const os = require('os')
 
@@ -462,12 +462,12 @@ ipcMain.handle('get-license-status', async () => {
 })
 
 ipcMain.handle('open-license-purchase-page', async () => {
-  shell.openExternal('https://snaptime.gumroad.com/l/hfigr')
+  shell.openExternal('https://www.snaptime.nl/license/kopen')
 })
 
 ipcMain.handle('activate-license', async (event, licenseKey: string) => {
   try {
-    const result = await verifyGumroadLicense(licenseKey)
+    const result = await validateSnapTimeLicense(licenseKey)
     if (!result.valid) {
       return { success: false, error: result.error || 'Invalid license key' }
     }
@@ -475,8 +475,11 @@ ipcMain.handle('activate-license', async (event, licenseKey: string) => {
     settings.licenseKey = licenseKey
     settings.licenseValid = true
     settings.licenseActivatedAt = Date.now()
+    if (result.expiresAt) {
+      settings.licenseExpiresAt = result.expiresAt
+    }
     saveSettings(settings)
-    console.log('[IPC] License activated, valid for 1 year from now')
+    console.log('[IPC] License activated')
     return { success: true }
   } catch (error) {
     console.error('[IPC activate-license] Error:', error)
@@ -599,4 +602,14 @@ ipcMain.handle('restart-app', () => {
 ipcMain.handle('check-for-updates', async () => {
   const result = await autoUpdater.checkForUpdates()
   return result
+})
+
+ipcMain.handle('read-clipboard', async () => {
+  try {
+    const text = clipboard.readText()
+    return { success: true, text }
+  } catch (error) {
+    console.error('[IPC read-clipboard] Error:', error)
+    return { success: false, error: String(error) }
+  }
 })

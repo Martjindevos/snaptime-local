@@ -16,10 +16,25 @@ export default function LicenseGate({ daysLeft, licenseValid, licenseKey, licens
   const [error, setError] = useState('')
 
   const trialExpired = daysLeft <= 0
-  const needsPurchase = !licenseValid && (trialExpired || licenseExpired)
+  const needsPurchase = !licenseValid
 
   const handleBuyLicense = () => {
     window.electron.ipcRenderer.invoke('open-license-purchase-page')
+  }
+
+  const handlePaste = async () => {
+    try {
+      const result = await window.electron.ipcRenderer.invoke('read-clipboard')
+      if (result.success && result.text) {
+        setNewLicenseKey(result.text.trim())
+        setError('')
+      } else {
+        setError(result.error || 'Failed to read clipboard')
+      }
+    } catch (err) {
+      console.error('Paste error:', err)
+      setError('Paste failed')
+    }
   }
 
   const handleActivate = async () => {
@@ -95,13 +110,30 @@ export default function LicenseGate({ daysLeft, licenseValid, licenseKey, licens
           </button>
         )}
 
-        <input
-          type="text"
-          placeholder="License key"
-          value={newLicenseKey}
-          onChange={(e) => setNewLicenseKey(e.target.value)}
-          style={{ width: '100%', boxSizing: 'border-box', marginBottom: '12px' }}
-        />
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+          <input
+            type="text"
+            placeholder="License key"
+            value={newLicenseKey}
+            onChange={(e) => setNewLicenseKey(e.target.value)}
+            style={{ flex: 1, boxSizing: 'border-box' }}
+          />
+          <button
+            onClick={handlePaste}
+            style={{
+              padding: '8px 16px',
+              background: '#3b82f6',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: 600,
+              color: 'white',
+            }}
+          >
+            Paste
+          </button>
+        </div>
 
         {error && <p className="error">{error}</p>}
 
