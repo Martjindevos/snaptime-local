@@ -7,7 +7,7 @@ interface Props {
 }
 
 export default function DuplicatesChecker({ schoolName, students, onClose }: Props) {
-  const [selectedSchool, setSelectedSchool] = useState<string | null>(schoolName || null)
+  const [selectedSchool, setSelectedSchool] = useState<string | null>(null)
   const [duplicates, setDuplicates] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -83,7 +83,7 @@ export default function DuplicatesChecker({ schoolName, students, onClose }: Pro
           <>
             {loading && <p>Scanning for duplicates in {selectedSchool}...</p>}
 
-        {error && <p className="error">{error}</p>}
+            {error && <p className="error">{error}</p>}
 
             {!loading && duplicates.length === 0 && (
               <p style={{ color: '#10b981' }}>✓ No duplicate student IDs found!</p>
