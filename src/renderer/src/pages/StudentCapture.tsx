@@ -444,7 +444,7 @@ export default function StudentCapture({ students, schoolName, className, photoP
         </div>
 
         <div className="capture-panel">
-          <h3 style={{ fontSize: '28px', marginBottom: '8px' }}>{selected ? `${[selected.firstName, selected.prefix, selected.lastName].filter(v => v && v !== 'undefined').join(' ')}` : 'Select a student'}</h3>
+          <h3 style={{ fontSize: '28px', marginBottom: '8px' }}>{selected ? `${[selected.prefix, selected.lastName].filter(v => v && v !== 'undefined').join(' ')}` : 'Select a student'}</h3>
           <p style={{ fontSize: '12px', margin: '4px 0' }}>ID: {selected?.id || '—'}</p>
           <p className={connected ? 'ok' : 'error'} style={{ fontSize: '12px' }}>
             {connected ? (
