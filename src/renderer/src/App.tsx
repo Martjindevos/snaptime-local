@@ -104,24 +104,29 @@ export default function App() {
     }
 
     // Load session from file via IPC
-    window.electron.ipcRenderer.invoke('load-session').then((result: any) => {
-      console.log('[Session Load] IPC result:', result)
-      if (result.success && result.data) {
-        const { screen: s, schoolName: sn, photoPath: pp, students: st, selectedClass: sc } = result.data
-        console.log('[Session Load] Parsed:', { screen: s, schoolName: sn, selectedClass: sc, hasStudents: !!st, classCount: Object.keys(st || {}).length })
-        if (st && Object.keys(st).length > 0) {
-          console.log('[Session Load] Restoring session')
-          setSchoolName(sn || '')
-          setPhotoPath(pp || '')
-          setStudents(st)
-          setSelectedClass(sc || '')
+    console.log('[Session Load] Starting load, window.electron:', !!window.electron?.ipcRenderer)
+    if (window.electron?.ipcRenderer) {
+      window.electron.ipcRenderer.invoke('load-session').then((result: any) => {
+        console.log('[Session Load] IPC result:', result)
+        if (result?.success && result?.data) {
+          const { screen: s, schoolName: sn, photoPath: pp, students: st, selectedClass: sc } = result.data
+          console.log('[Session Load] Parsed:', { screen: s, schoolName: sn, selectedClass: sc, hasStudents: !!st, classCount: Object.keys(st || {}).length })
+          if (st && Object.keys(st).length > 0) {
+            console.log('[Session Load] Restoring session with', Object.keys(st).length, 'classes')
+            setSchoolName(sn || '')
+            setPhotoPath(pp || '')
+            setStudents(st)
+            setSelectedClass(sc || '')
+          }
+        } else {
+          console.log('[Session Load] No saved session found or error:', result)
         }
-      } else {
-        console.log('[Session Load] No saved session found')
-      }
-    }).catch((err: any) => {
-      console.error('[Session Load] IPC failed:', err)
-    })
+      }).catch((err: any) => {
+        console.error('[Session Load] IPC failed:', err)
+      })
+    } else {
+      console.warn('[Session Load] window.electron.ipcRenderer not available')
+    }
 
     const sessionsList = localStorage.getItem('sessions')
     const savedSessionsList = localStorage.getItem('savedSessions')
