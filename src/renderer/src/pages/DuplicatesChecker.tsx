@@ -48,9 +48,12 @@ export default function DuplicatesChecker({ schoolName, students: initialStudent
         // Remove student from local state
         const updatedStudents = { ...students }
         if (updatedStudents[className]) {
+          const before = updatedStudents[className].length
           updatedStudents[className] = updatedStudents[className].filter((s: any) => s.id !== studentId)
+          const after = updatedStudents[className].length
+          console.log('[Delete] Filtered from', before, 'to', after, 'students')
+          console.log('[Delete] Updated students:', JSON.stringify(updatedStudents, null, 2))
         }
-        console.log('[Delete] After local update:', { classStudents: updatedStudents[className]?.length })
         setStudents(updatedStudents)
 
         // Save updated students to persist deletion (merge with existing session)
