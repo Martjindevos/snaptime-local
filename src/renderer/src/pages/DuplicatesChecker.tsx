@@ -39,19 +39,25 @@ export default function DuplicatesChecker({ schoolName, students: initialStudent
     if (!confirm(`Delete student ${studentId} from ${className}?`)) return
 
     try {
+      console.log('[Delete] Before:', { className, studentId, classStudents: students[className]?.length })
+
       const deleteResult = await window.electron.ipcRenderer.invoke('delete-student', schoolName, className, studentId)
+      console.log('[Delete] Server response:', deleteResult)
+
       if (deleteResult.success) {
         // Remove student from local state
         const updatedStudents = { ...students }
         if (updatedStudents[className]) {
           updatedStudents[className] = updatedStudents[className].filter((s: any) => s.id !== studentId)
         }
+        console.log('[Delete] After local update:', { classStudents: updatedStudents[className]?.length })
         setStudents(updatedStudents)
 
-        // Re-check duplicates with updated data - pass students as param to avoid closure issues
+        // Re-check duplicates with updated data
         setLoading(true)
         try {
           const result = await window.electron.ipcRenderer.invoke('check-duplicates', schoolName, updatedStudents)
+          console.log('[Delete] New duplicates result:', result)
           if (result.success) {
             setDuplicates(result.duplicates)
           } else {
