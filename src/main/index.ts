@@ -134,9 +134,6 @@ function createWindow() {
     dialog.showErrorBox('Crash', 'Application crashed. Please restart.')
   })
 
-  // Open DevTools for debugging
-  mainWindow.webContents.openDevTools()
-
   mainWindow.webContents.on('render-process-gone', (event, details) => {
     console.error('[Electron] Renderer process gone:', details)
   })
