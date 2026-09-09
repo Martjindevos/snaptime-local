@@ -3,6 +3,10 @@ const path = require('path')
 const fs = require('fs')
 const { autoUpdater } = require('electron-updater')
 
+// Enable detailed logging for updates
+autoUpdater.logger = require('electron-log')
+autoUpdater.logger.transports.file.level = 'info'
+
 let mainWindow
 
 // Session file storage (includes working session + history)
