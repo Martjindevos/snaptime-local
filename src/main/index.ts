@@ -159,12 +159,30 @@ app.on('ready', () => {
   }, 60 * 60 * 1000)
 })
 
-autoUpdater.on('update-available', () => {
+autoUpdater.on('checking-for-update', () => {
+  console.log('[AutoUpdater] Checking for updates...')
+})
+
+autoUpdater.on('update-available', (info: any) => {
+  console.log('[AutoUpdater] Update available:', info.version)
   mainWindow?.webContents.send('update-available')
 })
 
-autoUpdater.on('update-downloaded', () => {
+autoUpdater.on('update-not-available', (info: any) => {
+  console.log('[AutoUpdater] No update available. Current:', info.version)
+})
+
+autoUpdater.on('download-progress', (progress: any) => {
+  console.log('[AutoUpdater] Download progress:', Math.round(progress.percent), '%')
+})
+
+autoUpdater.on('update-downloaded', (info: any) => {
+  console.log('[AutoUpdater] Update downloaded:', info.version)
   mainWindow?.webContents.send('update-downloaded')
+})
+
+autoUpdater.on('error', (err: any) => {
+  console.error('[AutoUpdater] Error:', err)
 })
 
 app.on('window-all-closed', () => {
