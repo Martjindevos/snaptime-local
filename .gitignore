@@ -9,3 +9,4 @@ release/
 out/
 dist/
 node_modules/
+.claude/
