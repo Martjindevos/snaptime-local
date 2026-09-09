@@ -23,7 +23,7 @@ export default function StudentCapture({ students, schoolName, className, photoP
   const [allStudentPhotos, setAllStudentPhotos] = useState<Array<{ dataUrl: string; photoTime: Date }>>([])
   const [enlargedPhoto, setEnlargedPhoto] = useState<{ dataUrl: string; photoTime: Date } | null>(null)
   const [sortBy, setSortBy] = useState<'firstName' | 'lastName'>(() => {
-    return (localStorage.getItem(`sortBy-${schoolName}`) as 'firstName' | 'lastName') || 'firstName'
+    return (localStorage.getItem(`sortBy-${schoolName}`) as 'firstName' | 'lastName') || 'lastName'
   })
   const [editingStudent, setEditingStudent] = useState<(Student & { newClassName?: string }) | null>(null)
   const monitorIntervalRef = useRef<NodeJS.Timeout | null>(null)
